@@ -43,10 +43,15 @@ def signup(request):
         email = data['email']
         password = data['password']
 
-        store_data = UserData(Firstname=firstname,Lastname=lastname,Username=username,Email=email,Password=password)
-        store_data.save()
-        messages.success(request,'Created account Successfully, Please Log In to go to Home page')
-        return redirect('index')
+        exist_user_list = UserData.objects.all().values_list('Username',flat=True)
+        if username not in exist_user_list:
+            store_data = UserData(Firstname=firstname,Lastname=lastname,Username=username,Email=email,Password=password)
+            store_data.save()
+            messages.success(request,'Created account Successfully, Please Log In to go to Home page')
+            return redirect('index')
+        else:
+            messages.error(request,'Username already exist, Please try again')
+            return render(request,'index.html',context)
     else:
         messages.error(request,'Data is not entered properly, Try again')
         return render(request,'index.html',context)
